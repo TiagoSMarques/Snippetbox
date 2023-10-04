@@ -2,7 +2,10 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 	"time"
+
+	models "github.com/TiagoSMarques/Lets_Go/snippetbox"
 )
 
 // Define a snippet struct to hold the data for the individual snippet. The fields of the struct correspond to the fields of the MySQL snippets table
@@ -43,7 +46,28 @@ func (m *SnippetModel) Insert(tile string, content string, expires int) (int, er
 
 // this will return a specific snippet based on its id
 func (m *SnippetModel) Get(id int) (*Snippet, error) {
-	return nil, nil
+	stmt := `SELECT id, title, content, created, expires FROM snippets
+			 WHERE expires > UTC_TIMESTAMP AND id = ?`
+
+	//use queryrow on the conn pool to execute the sql statement - this returns a pointer to a sql.row object which holds the result from de db
+	row := m.DB.QueryRow(stmt, id)
+
+	//initialize a pointer to a new zeroed snippet struct.
+	s := &Snippet{}
+
+	//use row.scan to copy values from each field in sql.row to the corrensponding field in the cstruct
+	//the args to row.scan are pointers to where we want to copy the data into, and the number of args must be the same as the number of cols returned by our statment
+	err := row.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expire)
+	// If the query returns no rows, then row.Scan() will return a sql.ErrNoRows error
+	//We use the errors.Is() function check for that error specifically, and return our own ErrNoRecord error instead
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrNoRecord
+		} else {
+			return nil, err
+		}
+	}
+	return s, nil
 }
 
 // this will return the 10 most recently created snippets

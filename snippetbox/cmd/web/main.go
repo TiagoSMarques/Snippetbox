@@ -66,7 +66,7 @@ func main() {
 		Handler:  app.routes(cfg.staticDir),
 	}
 
-	//Use the http.ListenAndServe() to start a new Webserver. We pass in 2 parameters:
+	//Use the http.ListenAndServe() to start a new Webserver. We pass in 1 parameters:
 	// the TCP network address to listen on (in this case ":4000")
 	// and the servemux we just created. If the http.ListenAndServe returns an error
 	//we use the log.Fatal() to log the error message and exit
