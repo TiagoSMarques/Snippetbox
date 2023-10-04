@@ -50,7 +50,6 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		app.notFound(w)
 		return
 	}
-	//w.Write([]byte("Display a specific snippet..."))
 	fmt.Fprintf(w, "Display a specific snippet with id %d...", id)
 }
 
@@ -58,7 +57,7 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 
 	// Use r.Method to check whether the request is using POST or not.
 	//If its not send a method not allowed
-	if r.Method != "POST" {
+	if r.Method != http.MethodPost {
 		// response header map. The first parameter is the header name, and
 		// the second parameter is the header value.
 		w.Header().Set("Allow", http.MethodPost)
@@ -67,5 +66,17 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("Create a new snippet..."))
+	title := "O snail"
+	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n– Kobayashi Issa"
+	expires := 7
+
+	//pass the data to snippetModel.Insert() method, recieving the id of the record back
+	id, err := app.snippets.Insert(title, content, expires)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	//redirect the user to the relevant page for the snippetCreate
+	http.Redirect(w, r, fmt.Sprintf("/snippet/view?id=%d", id), http.StatusSeeOther)
 }
