@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"time"
-
-	models "github.com/TiagoSMarques/Snippetbox"
 )
 
 // Define a snippet struct to hold the data for the individual snippet. The fields of the struct correspond to the fields of the MySQL snippets table
@@ -14,7 +12,7 @@ type Snippet struct {
 	Title   string
 	Content string
 	Created time.Time
-	Expire  time.Time
+	Expires time.Time
 }
 
 // Define a SnippetModel type which wraps a sql.DB connection pool.
@@ -57,12 +55,12 @@ func (m *SnippetModel) Get(id int) (*Snippet, error) {
 
 	//use row.scan to copy values from each field in sql.row to the corrensponding field in the cstruct
 	//the args to row.scan are pointers to where we want to copy the data into, and the number of args must be the same as the number of cols returned by our statment
-	err := row.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expire)
+	err := row.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
 	// If the query returns no rows, then row.Scan() will return a sql.ErrNoRows error
 	//We use the errors.Is() function check for that error specifically, and return our own ErrNoRecord error instead
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, models.ErrNoRecord
+			return nil, ErrNoRecord
 		} else {
 			return nil, err
 		}
@@ -72,5 +70,34 @@ func (m *SnippetModel) Get(id int) (*Snippet, error) {
 
 // this will return the 10 most recently created snippets
 func (m *SnippetModel) Lastest() ([]*Snippet, error) {
-	return nil, nil
+	stmt := `SELECT id, title, content, created, expires FROM snippets
+			WHERE expires > UTC_TIMESTAMP() ORDER BY id DESC LIMIT 10`
+
+	rows, err := m.DB.Query(stmt)
+	if err != nil {
+		return nil, err
+	}
+
+	// We need to ensure that the sql.Rows resultset id always properly closed before the method lastest returns. This should always be called after checking for errors
+	//If we dont defer the connection to the db will remain opened
+	defer rows.Close()
+
+	snipets := []*Snippet{}
+
+	// rows.Next iterates over the resulset
+	for rows.Next() {
+
+		s := &Snippet{}
+
+		err = rows.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
+
+		if err != nil {
+			return nil, err
+		}
+		snipets = append(snipets, s)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return snipets, nil
 }

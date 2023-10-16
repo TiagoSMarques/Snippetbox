@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
-	models "github.com/TiagoSMarques/Snippetbox"
+	models "github.com/TiagoSMarques/Snippetbox/internal/models"
 )
 
 // Define a home handler funtion which writes a byte slice containing
@@ -19,6 +19,17 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.notFound(w)
 		return
 	}
+
+	snippets, err := app.snippets.Lastest()
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	for _, snippet := range snippets {
+		fmt.Fprintf(w, "%+v\n", snippet)
+	}
+
 	// Use template.ParseFiles() to read the template file into a template set.
 	// If there's an error, we log the detailed error message and use
 	// http.Error() to send a generic 500 Internal Server Error response to the user.
