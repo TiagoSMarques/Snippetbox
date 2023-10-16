@@ -1,2 +1,2 @@
 # Lets_Go
-Small projects and exercises in Go base on the book Let's Go by Alex Edwards
+Web app project in Go based on the book - Let's Go by Alex Edwards

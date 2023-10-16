@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/TiagoSMarques/Lets_Go/snippetbox/internal/models"
+	"github.com/TiagoSMarques/Snippetbox/internal/models"
 )
 
 type config struct {

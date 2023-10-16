@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	models "github.com/TiagoSMarques/Lets_Go/snippetbox"
+	models "github.com/TiagoSMarques/Snippetbox"
 )
 
 // Define a snippet struct to hold the data for the individual snippet. The fields of the struct correspond to the fields of the MySQL snippets table

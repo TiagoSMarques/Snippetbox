@@ -1,4 +1,4 @@
-module github.com/TiagoSMarques/Lets_Go/snippetbox
+module github.com/TiagoSMarques/Snippetbox
 
 go 1.21.1
 

@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
-	models "github.com/TiagoSMarques/Lets_Go/snippetbox"
+	models "github.com/TiagoSMarques/Snippetbox"
 )
 
 // Define a home handler funtion which writes a byte slice containing
